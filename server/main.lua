@@ -18,3 +18,11 @@ RegisterNetEvent('garage_creator:server:insertData', function(clientData)
         end)
     end
 end)
+
+AddEventHandler('onServerResourceStart', function(resourceName)
+    if resourceName == 'rhd_garage' then
+        Array.forEach(CREATED_GARAGE, function (data)
+            exports.rhd_garage:AddGarage(data)
+        end)
+    end
+end)

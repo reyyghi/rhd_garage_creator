@@ -10,13 +10,16 @@ lib.addCommand('creategarage', {
 }, function (source, args)
     if args.type == 'points' then
         TriggerClientEvent('rhd_garage:client:createPoints', source)
+    elseif args.type == 'zones' then
+        TriggerClientEvent('garage_creator:client:createZone', source)
     end
 end)
 
-lib.addCommand('removeGarage', {
+lib.addCommand('removegarage', {
     help = 'Remove created garage',
 }, function (source, args)
     local list = {}
+
     Array.forEach(CREATED_GARAGE, function (data)
         list[#list+1] = {
             value = data.label

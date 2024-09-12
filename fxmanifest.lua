@@ -15,7 +15,7 @@ shared_scripts {
 
 client_scripts {
 	'client/*.lua',
-	'functions/*.lua'
+	'creator/*.lua'
 }
 
 server_scripts {
@@ -23,5 +23,6 @@ server_scripts {
 }
 
 files {
-	'data/garages.json'
+	'data/garages.json',
+	'data/peds.json'
 }

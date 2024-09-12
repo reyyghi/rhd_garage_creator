@@ -39,11 +39,11 @@ local function blipInput(default)
     }
 end
 
-local function createGaragePoints()
-    local input = lib.inputDialog('Garage Creator (Points)', {
-        { type = 'input', label = 'Label', description = 'Enter a label for the garage point. This will be used to identify the point.', required = true },
-        { type = 'checkbox', label = 'Blip', description = 'Enable a blip on the map to make this garage point visible to players.' },
-        { type = 'checkbox', label = 'Groups', description = 'Select if this garage point should be accessible to specific jobs or gangs.' },
+local function createGarageData(zones)
+    local input = lib.inputDialog('Garage Creator (Zones)', {
+        { type = 'input', label = 'Label', description = 'Enter a label for the garage zone. This will be used to identify the zone.', required = true },
+        { type = 'checkbox', label = 'Blip', description = 'Enable a blip on the map to make this garage zone visible to players.' },
+        { type = 'checkbox', label = 'Groups', description = 'Select if this garage zone should be accessible to specific jobs or gangs.' },
     
         { type = 'select', label = 'Type', description = 'Choose the type of garage. This determines how the garage behaves and interacts with players.', options = {
             { label = 'Depot', value = 'depot' },
@@ -58,7 +58,13 @@ local function createGaragePoints()
             { label = 'Truck', value = 'truck' },
             { label = 'Helicopter', value = 'helicopter' },
             { label = 'Boat', value = 'boat' },
-        }}
+        }},
+
+        { type = 'select', label = "Interaction", options = {
+            {value = "radial", label = "Radial Menu"},
+            {value = "keypressed", label = "Key Pressed"},
+            {value = "targetped", label = "Target Ped"}
+        }, required = true},
     })
 
     if not input then return end
@@ -69,6 +75,15 @@ local function createGaragePoints()
     
     local blip = input[2] and blipInput(BLIP_DEFAULT[garageType])
     local groups = input[3] and groupsInput()
+    
+    local sp = CreateSpawnPoint(zones, false, nil, garageClass) ---@type table<string, vector3[]|string[]> | nil
+    
+    if not sp then
+        return
+    end
+    
+    local tPed = input[6] == 'targetped'
+    local interact = tPed and CreateGaragePed(zones) or input[6]
 
     local data = {
         type = garageType,
@@ -78,15 +93,21 @@ local function createGaragePoints()
         groups = groups and {
             [groups.name] = groups.rank
         },
-        points = CreateGaragePoints()
+        interaction = interact,
+        zones = zones,
+        spawnPoint = sp and sp.c or sp,
+        spawnPointVehicle = sp and sp.v or sp,
     }
 
     TriggerServerEvent('garage_creator:server:insertData', data)
 end
 
-RegisterNetEvent('rhd_garage:client:createPoints', function ()
+RegisterNetEvent('garage_creator:client:createZone', function ()
     if _Invoking() then
         return
     end
-    createGaragePoints()
+    CreateZone(function (zones)
+        if not zones then return end
+        createGarageData(zones)
+    end)
 end)

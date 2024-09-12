@@ -1,4 +1,4 @@
-lib.callback.register('creator:client:removeGarage', function(_, garageList)
+lib.callback.register('creator:client:removeGarage', function(garageList)
 
     if not Array.isArray(garageList) then
         return
